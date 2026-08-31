@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>AuraTask</title>
+  <meta name="theme-color" content="#09090b">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- SVG ICON SYMBOLS (No Emoji Allowed) -->
+  <svg style="display: none;">
+    <defs>
+      <g id="icon-plus"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+      <g id="icon-check"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+      <g id="icon-calendar"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2"/><line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="2"/><line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="2"/><line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="2"/></g>
+      <g id="icon-clock"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><polyline points="12 6 12 12 16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></g>
+      <g id="icon-matrix"><rect x="3" y="3" width="8" height="8" rx="2" stroke="currentColor" stroke-width="2"/><rect x="13" y="3" width="8" height="8" rx="2" stroke="currentColor" stroke-width="2"/><rect x="3" y="13" width="8" height="8" rx="2" stroke="currentColor" stroke-width="2"/><rect x="13" y="13" width="8" height="8" rx="2" stroke="currentColor" stroke-width="2"/></g>
+      <g id="icon-list"><line x1="8" y1="6" x2="21" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="18" x2="21" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="3" y1="6" x2="3.01" y2="6" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><line x1="3" y1="12" x2="3.01" y2="12" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><line x1="3" y1="18" x2="3.01" y2="18" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></g>
+      <g id="icon-today"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><polyline points="12 7 12 12 15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></g>
+      <g id="icon-inbox"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12" stroke="currentColor" stroke-width="2"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" stroke="currentColor" stroke-width="2"/></g>
+      <g id="icon-folder"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="2"/></g>
+      <g id="icon-search"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><line x1="21" y1="21" x2="16.65" y2="16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></g>
+      <g id="icon-sparkles"><path d="M12 3v3m0 12v3M3 12h3m12 0h3m-3.5-6.5l-2 2m-7 7l-2 2m11 0l-2-2m-7-7l-2-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></g>
+      <g id="icon-trash"><polyline points="3 6 5 6 21 6" stroke="currentColor" stroke-width="2"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="currentColor" stroke-width="2"/></g>
+      <g id="icon-edit"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="2"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2"/></g>
+      <g id="icon-close"><line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></g>
+      <g id="icon-menu"><line x1="3" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="3" y1="6" x2="21" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="3" y1="18" x2="21" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></g>
+    </defs>
+  </svg>
+
+  <div id="app-container" class="mobile-app-shell">
+    <!-- MOBILE TOP HEADER BAR -->
+    <header class="mobile-header">
+      <div class="header-left">
+        <button class="icon-btn" id="btn-open-drawer" aria-label="メニューを開く">
+          <svg class="icon"><use href="#icon-menu"/></svg>
+        </button>
+        <div class="mobile-brand">
+          <span class="brand-logo-small">A</span>
+          <h1 class="mobile-page-title" id="page-title">Today</h1>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <button class="icon-btn" id="btn-toggle-search" aria-label="検索">
+          <svg class="icon"><use href="#icon-search"/></svg>
+        </button>
+        <button class="icon-btn ai-badge-btn" id="btn-ai-assist" aria-label="AIアシスト">
+          <svg class="icon text-accent"><use href="#icon-sparkles"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- MOBILE EXPANDABLE SEARCH BAR -->
+    <div class="mobile-search-bar hidden" id="mobile-search-bar">
+      <div class="search-input-wrapper">
+        <svg class="icon search-icon"><use href="#icon-search"/></svg>
+        <input type="text" id="global-search-input" placeholder="検索...">
+        <button class="search-clear-btn hidden" id="search-clear-btn">
+          <svg class="icon"><use href="#icon-close"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- MOBILE DRAWER MENU OVERLAY -->
+    <div class="drawer-overlay hidden" id="drawer-overlay"></div>
+    <aside class="mobile-drawer hidden" id="mobile-drawer">
+      <div class="drawer-header">
+        <div class="brand">
+          <div class="brand-logo">A</div>
+          <span class="brand-name">AuraTask</span>
+        </div>
+        <button class="icon-btn" id="btn-close-drawer">
+          <svg class="icon"><use href="#icon-close"/></svg>
+        </button>
+      </div>
+
+      <div class="drawer-body">
+        <button class="drawer-item active" data-view="today">
+          <svg class="icon"><use href="#icon-today"/></svg>
+          <span>Today</span>
+          <span class="badge" id="badge-today">0</span>
+        </button>
+        <button class="drawer-item" data-view="tasks">
+          <svg class="icon"><use href="#icon-list"/></svg>
+          <span>Tasks</span>
+          <span class="badge" id="badge-tasks">0</span>
+        </button>
+        <button class="drawer-item" data-view="timeline">
+          <svg class="icon"><use href="#icon-clock"/></svg>
+          <span>Timeline</span>
+        </button>
+        <button class="drawer-item" data-view="calendar">
+          <svg class="icon"><use href="#icon-calendar"/></svg>
+          <span>Calendar</span>
+        </button>
+        <button class="drawer-item" data-view="matrix">
+          <svg class="icon"><use href="#icon-matrix"/></svg>
+          <span>Matrix</span>
+        </button>
+        <button class="drawer-item" data-view="inbox">
+          <svg class="icon"><use href="#icon-inbox"/></svg>
+          <span>Inbox</span>
+          <span class="badge" id="badge-inbox">0</span>
+        </button>
+        <button class="drawer-item" data-view="projects">
+          <svg class="icon"><use href="#icon-folder"/></svg>
+          <span>Projects</span>
+        </button>
+      </div>
+
+      <div class="drawer-footer">
+        <div class="drawer-date-info" id="drawer-date-text"></div>
+      </div>
+    </aside>
+
+    <!-- MOBILE MAIN CONTENT WRAPPER -->
+    <main class="mobile-viewport-content">
+      <!-- 1. TODAY VIEW -->
+      <section id="view-today" class="view-panel active">
+        <div class="mobile-today-container">
+          <div class="mobile-date-banner">
+            <span class="date-today-label" id="current-date-text"></span>
+          </div>
+
+          <div class="focus-card-mobile" id="focus-task-card">
+            <div class="focus-card-header">
+              <span class="focus-badge">NOW</span>
+              <button class="focus-complete-btn" id="focus-complete-btn">
+                <svg class="icon"><use href="#icon-check"/></svg>
+                <span>完了</span>
+              </button>
+            </div>
+            <div class="focus-card-body" id="focus-task-body"></div>
+          </div>
+
+          <div class="mobile-section">
+            <div class="section-title-bar">
+              <h3>Today</h3>
+              <span class="count-pill" id="count-today-do">0</span>
+            </div>
+            <div class="task-list" id="list-today-do"></div>
+          </div>
+
+          <div class="mobile-section">
+            <div class="section-title-bar">
+              <h3>Later</h3>
+              <span class="count-pill" id="count-today-later">0</span>
+            </div>
+            <div class="task-list" id="list-today-later"></div>
+          </div>
+
+          <div class="mobile-section">
+            <div class="section-title-bar">
+              <h3>Schedule</h3>
+              <button class="link-btn" id="btn-goto-timeline">&rarr;</button>
+            </div>
+            <div class="mini-timeline-card" id="mini-timeline-container"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. TASKS VIEW -->
+      <section id="view-tasks" class="view-panel">
+        <div class="mobile-tasks-container">
+          <div class="mobile-filter-chips">
+            <button class="chip-item active" data-filter="all">すべて</button>
+            <button class="chip-item" data-filter="today">今日</button>
+            <button class="chip-item" data-filter="uncompleted">未完了</button>
+            <button class="chip-item" data-filter="overdue">期限切れ</button>
+            <button class="chip-item" data-filter="completed">完了済み</button>
+          </div>
+
+          <div class="mobile-sort-row">
+            <select id="sort-select" class="mobile-select-sm">
+              <option value="matrix">マトリクス順</option>
+              <option value="dueDate">期限順</option>
+              <option value="createdAt">作成順</option>
+              <option value="title">名前順</option>
+            </select>
+          </div>
+
+          <div class="task-list" id="list-pure-tasks"></div>
+        </div>
+      </section>
+
+      <!-- 3. TIMELINE VIEW -->
+      <section id="view-timeline" class="view-panel">
+        <div class="mobile-timeline-container">
+          <div class="mobile-timeline-bar">
+            <button class="icon-btn-sm" id="timeline-prev-day">&lt;</button>
+            
+            <div class="timeline-date-selector-wrapper" id="timeline-date-picker-trigger">
+              <span id="timeline-current-date" class="timeline-date-text"></span>
+              <svg class="icon icon-xs"><use href="#icon-calendar"/></svg>
+              <input type="date" id="timeline-hidden-date-input" class="hidden-date-input">
+            </div>
+
+            <button class="icon-btn-sm" id="timeline-next-day">&gt;</button>
+            <button class="btn-today-sm" id="timeline-today-btn">今日</button>
+          </div>
+
+          <div class="timeline-schedule-mobile" id="timeline-hours-container"></div>
+
+          <div class="mobile-unassigned-section">
+            <div class="section-title-bar">
+              <h3>Unassigned</h3>
+            </div>
+            <div class="task-list" id="timeline-unassigned-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. CALENDAR VIEW -->
+      <section id="view-calendar" class="view-panel">
+        <div class="mobile-calendar-container">
+          <div class="calendar-month-bar">
+            <button class="icon-btn-sm" id="cal-prev-btn">&lt;</button>
+            <h2 id="cal-month-year-label"></h2>
+            <button class="icon-btn-sm" id="cal-next-btn">&gt;</button>
+            <button class="btn-today-sm" id="cal-today-btn">今月</button>
+          </div>
+
+          <div class="calendar-grid-mobile" id="calendar-grid"></div>
+        </div>
+      </section>
+
+      <!-- 5. MATRIX VIEW (ご指定配置: 右上＝緊急かつ重要, 右下＝緊急だが重要ではない, 左上＝重要だが緊急ではない, 左下＝緊急でも重要でもない) -->
+      <section id="view-matrix" class="view-panel">
+        <div class="visual-matrix-wrapper">
+          <div class="matrix-graphic-board">
+            <!-- 上軸: 重要 -->
+            <div class="axis-label axis-top">重要</div>
+
+            <div class="matrix-quadrant-grid">
+              <!-- 左上: 重要だが緊急ではない (Q2 黄) -->
+              <div class="v-quadrant q2-yellow" data-quadrant="Q2">
+                <div class="v-quad-header">
+                  <span class="v-quad-title">重要だが緊急でない</span>
+                  <span class="v-quad-count" id="count-q2">0</span>
+                </div>
+                <div class="v-quad-task-container" id="list-q2"></div>
+              </div>
+
+              <!-- 右上: 重要かつ緊急 (Q1 赤) -->
+              <div class="v-quadrant q1-red" data-quadrant="Q1">
+                <div class="v-quad-header">
+                  <span class="v-quad-title">重要かつ緊急</span>
+                  <span class="v-quad-count" id="count-q1">0</span>
+                </div>
+                <div class="v-quad-task-container" id="list-q1"></div>
+              </div>
+
+              <!-- 左下: 緊急でも重要でもない (Q4 灰) -->
+              <div class="v-quadrant q4-gray" data-quadrant="Q4">
+                <div class="v-quad-header">
+                  <span class="v-quad-title">緊急でも重要でもない</span>
+                  <span class="v-quad-count" id="count-q4">0</span>
+                </div>
+                <div class="v-quad-task-container" id="list-q4"></div>
+              </div>
+
+              <!-- 右下: 緊急だが重要ではない (Q3 青) -->
+              <div class="v-quadrant q3-cyan" data-quadrant="Q3">
+                <div class="v-quad-header">
+                  <span class="v-quad-title">緊急だが重要ではない</span>
+                  <span class="v-quad-count" id="count-q3">0</span>
+                </div>
+                <div class="v-quad-task-container" id="list-q3"></div>
+              </div>
+            </div>
+
+            <!-- 下軸: 重要ではない -->
+            <div class="axis-label axis-bottom">重要ではない</div>
+            <!-- 左軸: 緊急ではない, 右軸: 緊急 -->
+            <div class="axis-label axis-left vertical-text">緊急ではない</div>
+            <div class="axis-label axis-right vertical-text">緊急</div>
+          </div>
+
+          <div class="matrix-list-section">
+            <div class="matrix-list-group">
+              <div class="matrix-list-title q1-text">
+                <span>Q1 重要かつ緊急</span>
+              </div>
+              <div class="task-list" id="list-q1-full"></div>
+            </div>
+
+            <div class="matrix-list-group">
+              <div class="matrix-list-title q2-text">
+                <span>Q2 重要だが緊急でない</span>
+              </div>
+              <div class="task-list" id="list-q2-full"></div>
+            </div>
+
+            <div class="matrix-list-group">
+              <div class="matrix-list-title q3-text">
+                <span>Q3 緊急だが重要ではない</span>
+              </div>
+              <div class="task-list" id="list-q3-full"></div>
+            </div>
+
+            <div class="matrix-list-group">
+              <div class="matrix-list-title q4-text">
+                <span>Q4 緊急でも重要でもない</span>
+              </div>
+              <div class="task-list" id="list-q4-full"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6. INBOX VIEW -->
+      <section id="view-inbox" class="view-panel">
+        <div class="mobile-inbox-container">
+          <div class="task-list" id="list-inbox-tasks"></div>
+        </div>
+      </section>
+
+      <!-- 7. PROJECTS VIEW -->
+      <section id="view-projects" class="view-panel">
+        <div class="mobile-projects-container">
+          <div class="projects-mobile-header">
+            <h2>Projects</h2>
+            <button class="btn-add-project-lg" id="btn-add-project" aria-label="新規プロジェクト作成">
+              <svg class="icon"><use href="#icon-plus"/></svg>
+              <span>新規プロジェクト</span>
+            </button>
+          </div>
+          <div class="project-card-list" id="project-navigation-list"></div>
+          <div class="project-detail-area" id="project-detail-area"></div>
+        </div>
+      </section>
+    </main>
+
+    <!-- MOBILE NATIVE BOTTOM TAB BAR -->
+    <nav class="mobile-bottom-nav">
+      <button class="nav-tab active" data-view="today">
+        <svg class="icon"><use href="#icon-today"/></svg>
+        <span>Today</span>
+      </button>
+      <button class="nav-tab" data-view="tasks">
+        <svg class="icon"><use href="#icon-list"/></svg>
+        <span>Tasks</span>
+      </button>
+      
+      <div class="fab-placeholder"></div>
+
+      <button class="nav-tab" data-view="timeline">
+        <svg class="icon"><use href="#icon-clock"/></svg>
+        <span>Timeline</span>
+      </button>
+      <button class="nav-tab" data-view="matrix">
+        <svg class="icon"><use href="#icon-matrix"/></svg>
+        <span>Matrix</span>
+      </button>
+    </nav>
+
+    <!-- FLOATING CENTER QUICK ADD BUTTON (FAB) -->
+    <button class="mobile-fab" id="fab-add-task" aria-label="タスクを追加">
+      <svg class="icon"><use href="#icon-plus"/></svg>
+    </button>
+
+    <!-- MOBILE NATIVE BOTTOM SHEET -->
+    <div class="bottom-sheet-overlay hidden" id="task-modal">
+      <div class="bottom-sheet-card">
+        <div class="sheet-handle"></div>
+        <div class="sheet-header">
+          <h3 id="modal-task-title">新規タスク</h3>
+          <button class="icon-btn-close" id="close-task-modal">
+            <svg class="icon"><use href="#icon-close"/></svg>
+          </button>
+        </div>
+
+        <form id="task-form">
+          <div class="form-input-main">
+            <input type="text" id="task-title-input" placeholder="タスク名..." required autofocus autocomplete="off">
+          </div>
+
+          <div class="mobile-form-scroll-body">
+            <div class="mobile-form-row vertical">
+              <label>期限日（期間設定）</label>
+              <div class="date-range-group">
+                <input type="date" id="task-due-date" title="開始日">
+                <span>〜</span>
+                <input type="date" id="task-due-date-end" title="終了日">
+              </div>
+            </div>
+
+            <div class="mobile-form-row">
+              <label>時間</label>
+              <div class="time-range-group">
+                <input type="time" id="task-start-time">
+                <span>〜</span>
+                <input type="time" id="task-end-time">
+              </div>
+            </div>
+
+            <div class="mobile-form-row">
+              <label>マトリクス</label>
+              <select id="task-matrix-select">
+                <option value="Q1">Q1: 重要かつ緊急 (赤)</option>
+                <option value="Q2" selected>Q2: 重要だが緊急でない (黄)</option>
+                <option value="Q3">Q3: 緊急だが重要ではない (青)</option>
+                <option value="Q4">Q4: 緊急でも重要でもない (灰)</option>
+              </select>
+            </div>
+
+            <div class="mobile-form-row">
+              <label>プロジェクト</label>
+              <select id="task-project-select">
+                <option value="">未分類 (Inbox)</option>
+              </select>
+            </div>
+
+            <div class="mobile-form-row">
+              <label>タグ</label>
+              <input type="text" id="task-tags-input" placeholder="例: 仕事, 重要">
+            </div>
+
+            <div class="mobile-form-row vertical">
+              <label>メモ</label>
+              <textarea id="task-memo-input" rows="2" placeholder="詳細..."></textarea>
+            </div>
+
+            <div class="mobile-form-row vertical">
+              <label>サブタスク</label>
+              <div class="subtask-add-row">
+                <input type="text" id="new-subtask-input" placeholder="サブタスクを追加...">
+                <button type="button" class="btn-secondary-sm" id="btn-add-subtask-item">追加</button>
+              </div>
+              <ul class="subtask-builder-list" id="subtask-builder-list"></ul>
+            </div>
+          </div>
+
+          <div class="sheet-footer">
+            <button type="button" class="btn-cancel" id="cancel-task-btn">キャンセル</button>
+            <button type="submit" class="btn-save" id="save-task-btn">保存</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- AI ASSISTANT BOTTOM SHEET -->
+    <div class="bottom-sheet-overlay hidden" id="ai-modal">
+      <div class="bottom-sheet-card">
+        <div class="sheet-handle"></div>
+        <div class="sheet-header">
+          <div class="sheet-title-icon">
+            <svg class="icon text-accent"><use href="#icon-sparkles"/></svg>
+            <h3>AI Assist</h3>
+          </div>
+          <button class="icon-btn-close" id="close-ai-modal">
+            <svg class="icon"><use href="#icon-close"/></svg>
+          </button>
+        </div>
+
+        <div class="mobile-ai-body">
+          <div class="ai-card">
+            <h4>タスク分解</h4>
+            <div class="ai-select-row">
+              <select id="ai-target-task-select"></select>
+              <button class="btn-accent-sm" id="btn-ai-run-breakdown">実行</button>
+            </div>
+          </div>
+
+          <div class="ai-card">
+            <h4>マトリクス自動配置</h4>
+            <button class="btn-accent-sm full-width" id="btn-ai-run-matrix">実行</button>
+          </div>
+
+          <div class="ai-results-box hidden" id="ai-results-box">
+            <div id="ai-results-content"></div>
+            <button class="btn-save full-width" id="btn-ai-apply-results">適用</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
