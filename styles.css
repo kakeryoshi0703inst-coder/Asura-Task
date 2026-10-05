@@ -1,14 +1,13 @@
 /* ==========================================================================
    AuraTask - Pure Mobile-First & Minimal Graphic Matrix Styling System
    OLED Black Theme without unnecessary explanatory texts
-   Visual 2x2 Matrix Board + Below Task List Section Architecture
-   Manual Task Reordering, Inline Memo / Subtask & Timeline-Calendar Toggle Engine
+   Safe Area Bottom (iOS / Android App Mode) & Non-overlapping Ergonomic FAB
    ========================================================================== */
 
 :root {
-  /* Safe Area for iOS Notch/Status Bar & Home Bar */
+  /* Safe Area for iOS Notch/Status Bar & Home Bar (App Mode Safe Margins) */
   --sat: env(safe-area-inset-top, 28px);
-  --sab: env(safe-area-inset-bottom, 0px);
+  --sab: env(safe-area-inset-bottom, 16px);
 
   /* Mobile OLED Dark Color Palette */
   --bg-app: #09090b;
@@ -87,7 +86,7 @@ html, body {
 }
 
 /* --------------------------------------------------------------------------
-   1. MOBILE TOP HEADER
+   1. MOBILE TOP HEADER (NOTCH SAFE AREA)
    -------------------------------------------------------------------------- */
 .mobile-header {
   padding-top: max(var(--sat), 24px);
@@ -287,13 +286,14 @@ html, body {
 }
 
 /* --------------------------------------------------------------------------
-   3. MOBILE VIEW CONTAINER & PANELS
+   3. MOBILE VIEW CONTAINER & SCROLL PADDING (APP SAFE AREA OPTIMIZED)
    -------------------------------------------------------------------------- */
 .mobile-viewport-content {
   flex: 1;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  padding: 18px 16px calc(var(--bottom-nav-height) + var(--sab) + 28px) 16px;
+  /* アプリ化時のボトムナビ & FAB との被りを防ぐ十分な下部パディング */
+  padding: 18px 16px calc(var(--bottom-nav-height) + var(--sab) + 72px) 16px;
   position: relative;
 }
 
@@ -615,7 +615,6 @@ html, body {
   flex-wrap: wrap;
 }
 
-/* セグメントカプセル型ビュー切り替えトグル */
 .timeline-toggle-group {
   display: inline-flex;
   background-color: var(--bg-input);
@@ -1012,7 +1011,7 @@ html, body {
 }
 
 /* --------------------------------------------------------------------------
-   9. FIXED NATIVE MOBILE BOTTOM NAVIGATION & FAB
+   9. FIXED NATIVE MOBILE BOTTOM NAVIGATION & FAB (NO OVERLAP OPTIMIZED)
    -------------------------------------------------------------------------- */
 .mobile-bottom-nav {
   position: fixed;
@@ -1022,7 +1021,7 @@ html, body {
   border-top: 1px solid var(--border-subtle);
   display: flex;
   align-items: center;
-  justify-around;
+  justify-content: space-around;
   padding-bottom: var(--sab);
   z-index: 50;
 }
@@ -1045,24 +1044,27 @@ html, body {
   font-weight: 700;
 }
 
+/* FAB中央スペース確保 */
 .fab-placeholder { width: 56px; }
 
+/* スマホアプリ化（スタンドアロン起動）時にも被らない高い視認性のFABボタン */
 .mobile-fab {
   position: fixed;
-  bottom: calc(18px + var(--sab));
+  bottom: calc(var(--bottom-nav-height) + var(--sab) - 18px);
   left: 50%;
   transform: translateX(-50%);
-  width: 58px;
-  height: 58px;
+  width: 56px;
+  height: 56px;
   border-radius: var(--radius-full);
   background-color: var(--text-primary);
   color: var(--bg-app);
-  border: none;
+  border: 3px solid var(--bg-header);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.6);
-  z-index: 60;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.8), 0 0 12px rgba(255,255,255,0.2);
+  z-index: 70;
+  transition: transform 0.15s ease, background-color 0.15s;
 }
 
 .mobile-fab:active { transform: translateX(-50%) scale(0.92); }
@@ -1070,10 +1072,11 @@ html, body {
 .mobile-fab .icon {
   width: 26px;
   height: 26px;
+  stroke-width: 3;
 }
 
 /* --------------------------------------------------------------------------
-   10. MOBILE BOTTOM SHEET & DATE RANGE STYLING
+   10. MOBILE BOTTOM SHEET & FORM STYLING
    -------------------------------------------------------------------------- */
 .bottom-sheet-overlay {
   position: fixed;
