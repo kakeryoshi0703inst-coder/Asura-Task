@@ -2,6 +2,7 @@
    AuraTask - Pure Mobile-First & Minimal Graphic Matrix Styling System
    OLED Black Theme without unnecessary explanatory texts
    Visual 2x2 Matrix Board + Below Task List Section Architecture
+   Manual Task Reordering, Inline Memo / Subtask & Timeline-Calendar Toggle Engine
    ========================================================================== */
 
 :root {
@@ -25,10 +26,10 @@
   --text-muted: #71717a;
 
   /* Image Diagram Matched Eisenhower Quadrant Colors */
-  --color-q1-red: #ff4d4d;      /* 左上: 緊急かつ重要 */
-  --color-q2-yellow: #ffd13b;   /* 右上: 重要だが緊急でない */
-  --color-q3-cyan: #00c2e0;     /* 左下: 緊急だが重要でない */
-  --color-q4-gray: #555555;     /* 右下: 緊急でも重要でもない */
+  --color-q1-red: #ff4d4d;      /* 右上: 重要かつ緊急 */
+  --color-q2-yellow: #ffd13b;   /* 左上: 重要だが緊急でない */
+  --color-q3-cyan: #00c2e0;     /* 右下: 緊急だが重要ではない */
+  --color-q4-gray: #555555;     /* 左下: 緊急でも重要でもない */
 
   --color-accent: #38bdf8;
 
@@ -398,14 +399,51 @@ html, body {
 .task-item {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
+  gap: 10px;
   padding: 14px 14px;
   background-color: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
+  transition: transform 0.15s ease, opacity 0.15s, background-color 0.15s;
 }
 
 .task-item:active { background-color: var(--bg-card-active); }
+
+.task-item.dragging {
+  opacity: 0.4;
+  border: 1px dashed var(--color-accent);
+}
+
+.task-reorder-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.btn-reorder {
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  width: 26px;
+  height: 22px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.btn-reorder:active {
+  background-color: var(--border-medium);
+  color: var(--text-primary);
+}
+
+.btn-reorder .icon {
+  width: 14px;
+  height: 14px;
+}
 
 .task-checkbox {
   width: 24px;
@@ -426,7 +464,7 @@ html, body {
 }
 
 .task-content { flex: 1; min-width: 0; }
-.task-title { font-size: 15px; font-weight: 500; line-height: 1.35; color: var(--text-primary); }
+.task-title { font-size: 15px; font-weight: 600; line-height: 1.35; color: var(--text-primary); }
 .task-item.completed .task-title { text-decoration: line-through; color: var(--text-muted); }
 
 .task-meta-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 6px; font-size: 11px; }
@@ -446,6 +484,64 @@ html, body {
 .meta-chip.chip-q2 { border-color: var(--color-q2-yellow); color: var(--color-q2-yellow); }
 .meta-chip.chip-q3 { border-color: var(--color-q3-cyan); color: var(--color-q3-cyan); }
 .meta-chip.chip-q4 { border-color: var(--color-q4-gray); color: var(--color-q4-gray); }
+
+.task-memo-preview {
+  margin-top: 8px;
+  padding: 8px 10px;
+  background-color: var(--bg-app);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.task-subtasks-preview {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.task-subtask-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background-color: var(--bg-app);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.task-subtask-item.completed {
+  color: var(--text-muted);
+}
+
+.task-subtask-item.completed span {
+  text-decoration: line-through;
+}
+
+.subtask-mini-checkbox {
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--border-medium);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.task-subtask-item.completed .subtask-mini-checkbox {
+  background-color: var(--text-primary);
+  border-color: var(--text-primary);
+  color: var(--bg-app);
+}
 
 .task-actions { display: flex; align-items: center; gap: 2px; }
 .btn-icon-sm { background: none; border: none; color: var(--text-muted); padding: 6px; border-radius: var(--radius-sm); }
@@ -497,14 +593,14 @@ html, body {
   background-color: var(--bg-card);
   border: 1px solid var(--border-subtle);
   color: var(--text-primary);
-  padding: 4px 8px;
+  padding: 6px 10px;
   border-radius: var(--radius-sm);
   font-size: 12px;
   outline: none;
 }
 
 /* --------------------------------------------------------------------------
-   6. TIMELINE VIEW
+   6. TIMELINE & CALENDAR TOGGLE VIEW CONTROLS
    -------------------------------------------------------------------------- */
 .mobile-timeline-bar, .calendar-month-bar {
   display: flex;
@@ -512,9 +608,51 @@ html, body {
   justify-content: space-between;
   margin-bottom: 12px;
   background-color: var(--bg-card);
-  padding: 10px 14px;
+  padding: 8px 12px;
   border-radius: var(--radius-md);
   border: 1px solid var(--border-subtle);
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* セグメントカプセル型ビュー切り替えトグル */
+.timeline-toggle-group {
+  display: inline-flex;
+  background-color: var(--bg-input);
+  padding: 3px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-subtle);
+  gap: 2px;
+}
+
+.toggle-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  padding: 5px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.toggle-btn.active {
+  background-color: var(--text-primary);
+  color: var(--bg-app);
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
+
+.mobile-timeline-day-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 10px 0;
+  padding: 0 4px;
 }
 
 .icon-btn-sm {
@@ -629,6 +767,7 @@ html, body {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  cursor: pointer;
 }
 
 .cal-day-cell.today { background-color: var(--bg-card); }
@@ -644,7 +783,7 @@ html, body {
 }
 
 /* --------------------------------------------------------------------------
-   7. EISENHOWER MATRIX VIEW (BOARD + VERTICAL REVERSE AXIS LABELS)
+   7. EISENHOWER MATRIX VIEW
    -------------------------------------------------------------------------- */
 .visual-matrix-wrapper {
   display: flex;
@@ -678,7 +817,6 @@ html, body {
 .axis-top { margin-bottom: 8px; }
 .axis-bottom { margin-top: 8px; }
 
-/* 縦書き & 反転配置 (左＝緊急ではない, 右＝緊急) */
 .vertical-text {
   writing-mode: vertical-rl;
   text-orientation: upright;
@@ -884,7 +1022,7 @@ html, body {
   border-top: 1px solid var(--border-subtle);
   display: flex;
   align-items: center;
-  justify-content: space-around;
+  justify-around;
   padding-bottom: var(--sab);
   z-index: 50;
 }
@@ -1053,7 +1191,6 @@ html, body {
   outline: none;
 }
 
-/* 期間指定入力グループ */
 .date-range-group {
   display: flex;
   align-items: center;

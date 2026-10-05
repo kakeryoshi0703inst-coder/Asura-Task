@@ -1,7 +1,7 @@
 /**
  * AuraTask - Mobile-First Engine for Smartphone UX & Full Offline PWA
  * Visual Graphic Eisenhower Matrix with Interactive Below-Diagram Task List
- * Date Range Support & Strict Scroll Reset Engine
+ * Date Range Support, Manual Reordering, Inline Memo/Subtask & Timeline-Calendar Toggle Engine
  */
 
 (function () {
@@ -40,10 +40,10 @@
       matrix: 'Q1',
       projectId: 'proj-work',
       tags: ['開発', 'UI'],
-      memo: '図表直下のインタラクティブタスクリストのテスト',
+      memo: '図表直下のインタラクティブタスクリストおよびメモ・サブタスク全表示のテスト',
       subtasks: [
         { id: 'sub-1', title: '図表下へのリスト表示追加', completed: true },
-        { id: 'sub-2', title: 'タスク欄の優先順セレクトの整理', completed: true }
+        { id: 'sub-2', title: 'メモとサブタスクのカード内直接表示', completed: false }
       ],
       createdAt: new Date().toISOString(),
       isFocus: true
@@ -59,8 +59,11 @@
       matrix: 'Q2',
       projectId: 'proj-study',
       tags: ['計画'],
-      memo: '',
-      subtasks: [],
+      memo: '今年度取得目標の資格とアジャイル開発技術の習得ロードマップを整理する',
+      subtasks: [
+        { id: 'sub-2-1', title: '目標技術のピックアップ', completed: true },
+        { id: 'sub-2-2', title: '学習スケジュールの策定', completed: false }
+      ],
       createdAt: new Date().toISOString(),
       isFocus: false
     },
@@ -75,7 +78,7 @@
       matrix: 'Q3',
       projectId: 'proj-work',
       tags: ['連絡'],
-      memo: '',
+      memo: '顧客へのサポート回答テンプレートを作成して返信する',
       subtasks: [],
       createdAt: new Date().toISOString(),
       isFocus: false
@@ -91,7 +94,7 @@
       matrix: 'Q4',
       projectId: 'proj-life',
       tags: ['整理'],
-      memo: '',
+      memo: 'デスクトップおよびダウンロードフォルダのバックアップ',
       subtasks: [],
       createdAt: new Date().toISOString(),
       isFocus: false
@@ -104,13 +107,15 @@
     projects: [],
     currentView: 'today',
     taskFilter: 'all',
-    sortOption: 'matrix',
+    sortOption: 'custom',
     searchQuery: '',
     selectedDate: getTodayDateString(),
     calendarViewDate: new Date(),
     editingTaskId: null,
     tempSubtasks: [],
-    aiProposedSubtasks: null
+    aiProposedSubtasks: null,
+    draggedTaskId: null,
+    timelineMode: 'timeline' // 'timeline' or 'calendar'
   };
 
   function loadState() {
@@ -181,7 +186,12 @@
     elements.filterChips = document.querySelectorAll('.chip-item');
     elements.sortSelect = document.getElementById('sort-select');
 
-    // Timeline View
+    // Timeline View (切り替えボタン & トグルコンテナ)
+    elements.btnModeTimeline = document.getElementById('btn-mode-timeline');
+    elements.btnModeCalendar = document.getElementById('btn-mode-calendar');
+    elements.timelineViewModeContainer = document.getElementById('timeline-view-mode-container');
+    elements.calendarViewModeContainer = document.getElementById('calendar-view-mode-container');
+
     elements.timelineHoursContainer = document.getElementById('timeline-hours-container');
     elements.timelineUnassignedList = document.getElementById('timeline-unassigned-list');
     elements.timelineCurrentDate = document.getElementById('timeline-current-date');
@@ -191,12 +201,18 @@
     elements.timelineDatePickerTrigger = document.getElementById('timeline-date-picker-trigger');
     elements.timelineHiddenDateInput = document.getElementById('timeline-hidden-date-input');
 
-    // Calendar Elements
+    // Calendar Elements (Inline & Standalone)
     elements.calendarGrid = document.getElementById('calendar-grid');
     elements.calMonthYearLabel = document.getElementById('cal-month-year-label');
     elements.calPrevBtn = document.getElementById('cal-prev-btn');
     elements.calNextBtn = document.getElementById('cal-next-btn');
     elements.calTodayBtn = document.getElementById('cal-today-btn');
+
+    elements.calendarGridAlt = document.getElementById('calendar-grid-alt');
+    elements.calMonthYearLabelAlt = document.getElementById('cal-month-year-label-alt');
+    elements.calPrevBtnAlt = document.getElementById('cal-prev-btn-alt');
+    elements.calNextBtnAlt = document.getElementById('cal-next-btn-alt');
+    elements.calTodayBtnAlt = document.getElementById('cal-today-btn-alt');
 
     // Visual Matrix View Elements
     elements.listQ1 = document.getElementById('list-q1');
@@ -208,7 +224,6 @@
     elements.countQ3 = document.getElementById('count-q3');
     elements.countQ4 = document.getElementById('count-q4');
 
-    // Visual Matrix View Full Lists
     elements.listQ1Full = document.getElementById('list-q1-full');
     elements.listQ2Full = document.getElementById('list-q2-full');
     elements.listQ3Full = document.getElementById('list-q3-full');
@@ -220,7 +235,7 @@
     elements.projectDetailArea = document.getElementById('project-detail-area');
     elements.btnAddProject = document.getElementById('btn-add-project');
 
-    // Task Modal Sheet & Form Scroll Container
+    // Task Modal Sheet
     elements.fabAddTask = document.getElementById('fab-add-task');
     elements.taskModal = document.getElementById('task-modal');
     elements.closeTaskModal = document.getElementById('close-task-modal');
@@ -229,7 +244,7 @@
     elements.mobileFormScrollBody = document.querySelector('.mobile-form-scroll-body');
     elements.bottomSheetCard = document.querySelector('.bottom-sheet-card');
 
-    // Form Inputs (期間設定含む)
+    // Form Inputs
     elements.modalTaskTitle = document.getElementById('modal-task-title');
     elements.taskTitleInput = document.getElementById('task-title-input');
     elements.taskDueDate = document.getElementById('task-due-date');
@@ -318,6 +333,10 @@
       renderTasksView();
     });
 
+    // TIMELINE ⇔ CALENDAR モード切替トグルイベント
+    elements.btnModeTimeline.addEventListener('click', () => setTimelineMode('timeline'));
+    elements.btnModeCalendar.addEventListener('click', () => setTimelineMode('calendar'));
+
     // TIMELINE DATE PICKER
     let pressTimer = null;
 
@@ -366,9 +385,16 @@
     elements.btnGotoTimeline.addEventListener('click', () => switchView('timeline'));
 
     // Calendar Controls
-    elements.calPrevBtn.addEventListener('click', () => changeCalendarMonth(-1));
-    elements.calNextBtn.addEventListener('click', () => changeCalendarMonth(1));
-    elements.calTodayBtn.addEventListener('click', () => {
+    if (elements.calPrevBtn) elements.calPrevBtn.addEventListener('click', () => changeCalendarMonth(-1));
+    if (elements.calNextBtn) elements.calNextBtn.addEventListener('click', () => changeCalendarMonth(1));
+    if (elements.calTodayBtn) elements.calTodayBtn.addEventListener('click', () => {
+      state.calendarViewDate = new Date();
+      renderCalendarView();
+    });
+
+    if (elements.calPrevBtnAlt) elements.calPrevBtnAlt.addEventListener('click', () => changeCalendarMonth(-1));
+    if (elements.calNextBtnAlt) elements.calNextBtnAlt.addEventListener('click', () => changeCalendarMonth(1));
+    if (elements.calTodayBtnAlt) elements.calTodayBtnAlt.addEventListener('click', () => {
       state.calendarViewDate = new Date();
       renderCalendarView();
     });
@@ -414,6 +440,21 @@
     });
   }
 
+  function setTimelineMode(mode) {
+    state.timelineMode = mode;
+    elements.btnModeTimeline.classList.toggle('active', mode === 'timeline');
+    elements.btnModeCalendar.classList.toggle('active', mode === 'calendar');
+
+    if (mode === 'timeline') {
+      elements.timelineViewModeContainer.classList.remove('hidden');
+      elements.calendarViewModeContainer.classList.add('hidden');
+    } else {
+      elements.timelineViewModeContainer.classList.add('hidden');
+      elements.calendarViewModeContainer.classList.remove('hidden');
+    }
+    renderTimelineView();
+  }
+
   function openDrawer() {
     elements.mobileDrawer.classList.remove('hidden');
     elements.drawerOverlay.classList.remove('hidden');
@@ -438,7 +479,6 @@
       panel.classList.toggle('active', panel.id === `view-${viewName}`);
     });
 
-    // 「Tasks (タスク)」から「(タスク)」を削除し「Tasks」に変更
     const titleMap = {
       today: 'Today',
       tasks: 'Tasks',
@@ -485,7 +525,9 @@
     const list = [...taskList];
     const opt = state.sortOption;
 
-    if (opt === 'matrix') {
+    if (opt === 'custom') {
+      return list;
+    } else if (opt === 'matrix') {
       const order = { Q1: 1, Q2: 2, Q3: 3, Q4: 4 };
       list.sort((a, b) => (order[a.matrix] || 4) - (order[b.matrix] || 4));
     } else if (opt === 'dueDate') {
@@ -498,10 +540,80 @@
     return list;
   }
 
+  function moveTaskOrder(taskId, direction) {
+    const index = state.tasks.findIndex(t => t.id === taskId);
+    if (index === -1) return;
+
+    const targetIndex = index + direction;
+    if (targetIndex < 0 || targetIndex >= state.tasks.length) return;
+
+    const temp = state.tasks[index];
+    state.tasks[index] = state.tasks[targetIndex];
+    state.tasks[targetIndex] = temp;
+
+    saveState();
+  }
+
   function createTaskDOMElement(task) {
     const item = document.createElement('div');
     item.className = `task-item ${task.completed ? 'completed' : ''}`;
     item.dataset.id = task.id;
+    item.setAttribute('draggable', 'true');
+
+    const reorderControls = document.createElement('div');
+    reorderControls.className = 'task-reorder-controls';
+
+    const btnUp = document.createElement('button');
+    btnUp.className = 'btn-reorder btn-reorder-up';
+    btnUp.setAttribute('aria-label', '上へ移動');
+    btnUp.innerHTML = '<svg class="icon"><use href="#icon-arrow-up"/></svg>';
+    btnUp.addEventListener('click', (e) => {
+      e.stopPropagation();
+      moveTaskOrder(task.id, -1);
+    });
+
+    const btnDown = document.createElement('button');
+    btnDown.className = 'btn-reorder btn-reorder-down';
+    btnDown.setAttribute('aria-label', '下へ移動');
+    btnDown.innerHTML = '<svg class="icon"><use href="#icon-arrow-down"/></svg>';
+    btnDown.addEventListener('click', (e) => {
+      e.stopPropagation();
+      moveTaskOrder(task.id, 1);
+    });
+
+    reorderControls.appendChild(btnUp);
+    reorderControls.appendChild(btnDown);
+
+    item.addEventListener('dragstart', (e) => {
+      state.draggedTaskId = task.id;
+      item.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+
+    item.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+    });
+
+    item.addEventListener('dragend', () => {
+      item.classList.remove('dragging');
+      state.draggedTaskId = null;
+    });
+
+    item.addEventListener('drop', (e) => {
+      e.preventDefault();
+      const draggedId = state.draggedTaskId;
+      if (!draggedId || draggedId === task.id) return;
+
+      const fromIndex = state.tasks.findIndex(t => t.id === draggedId);
+      const toIndex = state.tasks.findIndex(t => t.id === task.id);
+
+      if (fromIndex !== -1 && toIndex !== -1) {
+        const [movedTask] = state.tasks.splice(fromIndex, 1);
+        state.tasks.splice(toIndex, 0, movedTask);
+        saveState();
+      }
+    });
 
     const checkbox = document.createElement('div');
     checkbox.className = `task-checkbox ${task.completed ? 'checked' : ''}`;
@@ -527,7 +639,6 @@
     matrixChip.textContent = task.matrix;
     metaRow.appendChild(matrixChip);
 
-    // 期限日（期間指定対応表示: 例 2026-08-31 〜 2026-09-05）
     if (task.dueDate) {
       const dateChip = document.createElement('span');
       dateChip.className = 'meta-chip';
@@ -543,16 +654,51 @@
       metaRow.appendChild(timeChip);
     }
 
-    if (task.subtasks && task.subtasks.length > 0) {
-      const done = task.subtasks.filter(s => s.completed).length;
-      const subChip = document.createElement('span');
-      subChip.className = 'meta-chip';
-      subChip.textContent = `サブ: ${done}/${task.subtasks.length}`;
-      metaRow.appendChild(subChip);
-    }
-
     content.appendChild(title);
     content.appendChild(metaRow);
+
+    if (task.memo && task.memo.trim()) {
+      const memoBox = document.createElement('div');
+      memoBox.className = 'task-memo-preview';
+      memoBox.textContent = task.memo.trim();
+      content.appendChild(memoBox);
+    }
+
+    if (task.subtasks && task.subtasks.length > 0) {
+      const subtaskContainer = document.createElement('div');
+      subtaskContainer.className = 'task-subtasks-preview';
+
+      task.subtasks.forEach(sub => {
+        const subItem = document.createElement('div');
+        subItem.className = `task-subtask-item ${sub.completed ? 'completed' : ''}`;
+        
+        const subCheck = document.createElement('div');
+        subCheck.className = 'subtask-mini-checkbox';
+        subCheck.innerHTML = sub.completed ? '<svg class="icon icon-xs"><use href="#icon-check"/></svg>' : '';
+
+        const subTitle = document.createElement('span');
+        subTitle.textContent = sub.title;
+
+        subItem.appendChild(subCheck);
+        subItem.appendChild(subTitle);
+
+        subItem.addEventListener('click', (e) => {
+          e.stopPropagation();
+          sub.completed = !sub.completed;
+
+          const allCompleted = task.subtasks.every(s => s.completed);
+          if (allCompleted) {
+            task.completed = true;
+          }
+
+          saveState();
+        });
+
+        subtaskContainer.appendChild(subItem);
+      });
+
+      content.appendChild(subtaskContainer);
+    }
 
     const actions = document.createElement('div');
     actions.className = 'task-actions';
@@ -577,6 +723,7 @@
     actions.appendChild(editBtn);
     actions.appendChild(deleteBtn);
 
+    item.appendChild(reorderControls);
     item.appendChild(checkbox);
     item.appendChild(content);
     item.appendChild(actions);
@@ -673,42 +820,47 @@
     sorted.forEach(t => elements.listPureTasks.appendChild(createTaskDOMElement(t)));
   }
 
-  // 3. TIMELINE VIEW
+  // 3. TIMELINE VIEW (Timeline ⇔ Calendar モード切り替え描画)
   function renderTimelineView() {
     elements.timelineCurrentDate.textContent = formatDateJapanese(state.selectedDate);
-    elements.timelineHoursContainer.innerHTML = '';
 
-    const dayTasks = state.tasks.filter(t => (t.dueDate === state.selectedDate || (t.dueDate <= state.selectedDate && t.dueDateEnd >= state.selectedDate)) && t.startTime);
+    if (state.timelineMode === 'timeline') {
+      elements.timelineHoursContainer.innerHTML = '';
+      const dayTasks = state.tasks.filter(t => (t.dueDate === state.selectedDate || (t.dueDate <= state.selectedDate && t.dueDateEnd >= state.selectedDate)) && t.startTime);
 
-    for (let h = 0; h < 24; h++) {
-      const hourStr = String(h).padStart(2, '0') + ':00';
-      const row = document.createElement('div');
-      row.className = 'hour-row';
+      for (let h = 0; h < 24; h++) {
+        const hourStr = String(h).padStart(2, '0') + ':00';
+        const row = document.createElement('div');
+        row.className = 'hour-row';
 
-      const label = document.createElement('div');
-      label.className = 'hour-label';
-      label.textContent = hourStr;
+        const label = document.createElement('div');
+        label.className = 'hour-label';
+        label.textContent = hourStr;
 
-      const slot = document.createElement('div');
-      slot.className = 'hour-slot';
+        const slot = document.createElement('div');
+        slot.className = 'hour-slot';
 
-      const matchingTasks = dayTasks.filter(t => t.startTime && parseInt(t.startTime.split(':')[0], 10) === h);
-      matchingTasks.forEach(t => {
-        const block = document.createElement('div');
-        block.className = 'timeline-block';
-        block.style.borderLeftColor = t.matrix === 'Q1' ? 'var(--color-q1-red)' : 'var(--color-q2-yellow)';
-        block.innerHTML = `<strong>${t.startTime}</strong> ${t.title}`;
-        slot.appendChild(block);
-      });
+        const matchingTasks = dayTasks.filter(t => t.startTime && parseInt(t.startTime.split(':')[0], 10) === h);
+        matchingTasks.forEach(t => {
+          const block = document.createElement('div');
+          block.className = 'timeline-block';
+          block.style.borderLeftColor = t.matrix === 'Q1' ? 'var(--color-q1-red)' : 'var(--color-q2-yellow)';
+          block.innerHTML = `<strong>${t.startTime}</strong> ${t.title}`;
+          slot.appendChild(block);
+        });
 
-      row.appendChild(label);
-      row.appendChild(slot);
-      elements.timelineHoursContainer.appendChild(row);
+        row.appendChild(label);
+        row.appendChild(slot);
+        elements.timelineHoursContainer.appendChild(row);
+      }
+
+      const unassigned = state.tasks.filter(t => !t.completed && (!t.dueDate || !t.startTime));
+      elements.timelineUnassignedList.innerHTML = '';
+      unassigned.forEach(t => elements.timelineUnassignedList.appendChild(createTaskDOMElement(t)));
+    } else {
+      // Calendar モードの描画 (インラインカレンダー)
+      renderCalendarView();
     }
-
-    const unassigned = state.tasks.filter(t => !t.completed && (!t.dueDate || !t.startTime));
-    elements.timelineUnassignedList.innerHTML = '';
-    unassigned.forEach(t => elements.timelineUnassignedList.appendChild(createTaskDOMElement(t)));
   }
 
   function changeTimelineDay(offset) {
@@ -718,57 +870,78 @@
     renderTimelineView();
   }
 
-  // 4. CALENDAR VIEW
+  // 4. CALENDAR VIEW (日付タップで即座にその日のタイムライン表示へ切り替わる親切設計)
   function renderCalendarView() {
     const d = state.calendarViewDate;
     const year = d.getFullYear();
     const month = d.getMonth();
-    elements.calMonthYearLabel.textContent = `${year}年 ${month + 1}月`;
+    const monthYearText = `${year}年 ${month + 1}月`;
+
+    if (elements.calMonthYearLabel) elements.calMonthYearLabel.textContent = monthYearText;
+    if (elements.calMonthYearLabelAlt) elements.calMonthYearLabelAlt.textContent = monthYearText;
 
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
     const startingDayIndex = firstDay.getDay();
     const totalDays = lastDay.getDate();
 
-    elements.calendarGrid.innerHTML = '';
-    const dayNames = ['日', '月', '火', '水', '木', '金', '土'];
-    dayNames.forEach(name => {
-      const header = document.createElement('div');
-      header.style.padding = '4px';
-      header.style.textAlign = 'center';
-      header.style.fontSize = '10px';
-      header.style.color = 'var(--text-muted)';
-      header.textContent = name;
-      elements.calendarGrid.appendChild(header);
-    });
+    const buildGrid = (targetGrid) => {
+      if (!targetGrid) return;
+      targetGrid.innerHTML = '';
 
-    for (let i = 0; i < startingDayIndex; i++) {
-      const emptyCell = document.createElement('div');
-      emptyCell.className = 'cal-day-cell';
-      elements.calendarGrid.appendChild(emptyCell);
-    }
-
-    const todayStr = getTodayDateString();
-    for (let day = 1; day <= totalDays; day++) {
-      const cellDateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-      const cell = document.createElement('div');
-      cell.className = `cal-day-cell ${cellDateStr === todayStr ? 'today' : ''}`;
-
-      const num = document.createElement('div');
-      num.className = 'cal-day-num';
-      num.textContent = day;
-      cell.appendChild(num);
-
-      const dayTasks = state.tasks.filter(t => t.dueDate === cellDateStr || (t.dueDate <= cellDateStr && t.dueDateEnd >= cellDateStr));
-      dayTasks.slice(0, 2).forEach(t => {
-        const pill = document.createElement('div');
-        pill.className = 'cal-task-pill';
-        pill.textContent = t.title;
-        cell.appendChild(pill);
+      const dayNames = ['日', '月', '火', '水', '木', '金', '土'];
+      dayNames.forEach(name => {
+        const header = document.createElement('div');
+        header.style.padding = '4px';
+        header.style.textAlign = 'center';
+        header.style.fontSize = '10px';
+        header.style.color = 'var(--text-muted)';
+        header.textContent = name;
+        targetGrid.appendChild(header);
       });
 
-      elements.calendarGrid.appendChild(cell);
-    }
+      for (let i = 0; i < startingDayIndex; i++) {
+        const emptyCell = document.createElement('div');
+        emptyCell.className = 'cal-day-cell';
+        targetGrid.appendChild(emptyCell);
+      }
+
+      const todayStr = getTodayDateString();
+      for (let day = 1; day <= totalDays; day++) {
+        const cellDateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const cell = document.createElement('div');
+        cell.className = `cal-day-cell ${cellDateStr === todayStr ? 'today' : ''}`;
+
+        const num = document.createElement('div');
+        num.className = 'cal-day-num';
+        num.textContent = day;
+        cell.appendChild(num);
+
+        const dayTasks = state.tasks.filter(t => t.dueDate === cellDateStr || (t.dueDate <= cellDateStr && t.dueDateEnd >= cellDateStr));
+        dayTasks.slice(0, 2).forEach(t => {
+          const pill = document.createElement('div');
+          pill.className = 'cal-task-pill';
+          pill.textContent = t.title;
+          cell.appendChild(pill);
+        });
+
+        // カレンダーの日付セルをタップすると、その日付のタイムライン軸表示へスムーズに切替
+        cell.addEventListener('click', () => {
+          state.selectedDate = cellDateStr;
+          if (state.currentView === 'timeline') {
+            setTimelineMode('timeline');
+          } else {
+            switchView('timeline');
+            setTimelineMode('timeline');
+          }
+        });
+
+        targetGrid.appendChild(cell);
+      }
+    };
+
+    buildGrid(elements.calendarGrid);
+    buildGrid(elements.calendarGridAlt);
   }
 
   function changeCalendarMonth(offset) {
@@ -876,12 +1049,11 @@
     elements.badgeInbox.textContent = inboxCount;
   }
 
-  // BOTTOM SHEET (ADD/EDIT TASK) - ALWAYS SHOW AS "新規タスク" & RESET SCROLL
+  // BOTTOM SHEET (ADD/EDIT TASK)
   function openTaskModal(taskId = null) {
     state.editingTaskId = taskId;
     state.tempSubtasks = [];
 
-    // モーダルタイトルを一貫して「新規タスク」に指定
     elements.modalTaskTitle.textContent = '新規タスク';
 
     elements.taskProjectSelect.innerHTML = '<option value="">未分類 (Inbox)</option>';
@@ -915,10 +1087,8 @@
 
     renderSubtaskBuilderList();
 
-    // Show modal
     elements.taskModal.classList.remove('hidden');
 
-    // モーダルが開くたびに画面の一番上にスクロール（初期化）
     requestAnimationFrame(() => {
       if (elements.mobileFormScrollBody) {
         elements.mobileFormScrollBody.scrollTop = 0;

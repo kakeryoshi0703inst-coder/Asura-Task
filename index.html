@@ -32,6 +32,8 @@
       <g id="icon-edit"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="2"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2"/></g>
       <g id="icon-close"><line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></g>
       <g id="icon-menu"><line x1="3" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="3" y1="6" x2="21" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="3" y1="18" x2="21" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></g>
+      <g id="icon-arrow-up"><path d="M12 19V5M5 12l7-7 7 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+      <g id="icon-arrow-down"><path d="M12 5v14M5 12l7 7 7-7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></g>
     </defs>
   </svg>
 
@@ -180,6 +182,7 @@
 
           <div class="mobile-sort-row">
             <select id="sort-select" class="mobile-select-sm">
+              <option value="custom" selected>カスタム順 (手動)</option>
               <option value="matrix">マトリクス順</option>
               <option value="dueDate">期限順</option>
               <option value="createdAt">作成順</option>
@@ -191,56 +194,82 @@
         </div>
       </section>
 
-      <!-- 3. TIMELINE VIEW -->
+      <!-- 3. TIMELINE VIEW (ボタンを押してカレンダーと切り替わる仕様へ拡張) -->
       <section id="view-timeline" class="view-panel">
         <div class="mobile-timeline-container">
+          <!-- 上部操作バー & ビュー切り替えトグルボタン -->
           <div class="mobile-timeline-bar">
-            <button class="icon-btn-sm" id="timeline-prev-day">&lt;</button>
-            
+            <div class="timeline-toggle-group">
+              <button class="toggle-btn active" id="btn-mode-timeline" data-mode="timeline">
+                <svg class="icon icon-xs"><use href="#icon-clock"/></svg>
+                <span>Timeline</span>
+              </button>
+              <button class="toggle-btn" id="btn-mode-calendar" data-mode="calendar">
+                <svg class="icon icon-xs"><use href="#icon-calendar"/></svg>
+                <span>Calendar</span>
+              </button>
+            </div>
+
             <div class="timeline-date-selector-wrapper" id="timeline-date-picker-trigger">
               <span id="timeline-current-date" class="timeline-date-text"></span>
               <svg class="icon icon-xs"><use href="#icon-calendar"/></svg>
               <input type="date" id="timeline-hidden-date-input" class="hidden-date-input">
             </div>
 
-            <button class="icon-btn-sm" id="timeline-next-day">&gt;</button>
             <button class="btn-today-sm" id="timeline-today-btn">今日</button>
           </div>
 
-          <div class="timeline-schedule-mobile" id="timeline-hours-container"></div>
-
-          <div class="mobile-unassigned-section">
-            <div class="section-title-bar">
-              <h3>Unassigned</h3>
+          <!-- 3-A. タイムライン表示領域 (24h 軸) -->
+          <div id="timeline-view-mode-container">
+            <div class="mobile-timeline-day-nav">
+              <button class="icon-btn-sm" id="timeline-prev-day">&lt;</button>
+              <span style="font-size:12px; color:var(--text-secondary); font-weight:600;">1日表示</span>
+              <button class="icon-btn-sm" id="timeline-next-day">&gt;</button>
             </div>
-            <div class="task-list" id="timeline-unassigned-list"></div>
+            <div class="timeline-schedule-mobile" id="timeline-hours-container"></div>
+            
+            <div class="mobile-unassigned-section">
+              <div class="section-title-bar">
+                <h3>Unassigned</h3>
+              </div>
+              <div class="task-list" id="timeline-unassigned-list"></div>
+            </div>
+          </div>
+
+          <!-- 3-B. インライン カレンダー表示領域 (切り替え用) -->
+          <div id="calendar-view-mode-container" class="hidden">
+            <div class="calendar-month-bar">
+              <button class="icon-btn-sm" id="cal-prev-btn">&lt;</button>
+              <h2 id="cal-month-year-label"></h2>
+              <button class="icon-btn-sm" id="cal-next-btn">&gt;</button>
+              <button class="btn-today-sm" id="cal-today-btn">今月</button>
+            </div>
+            <div class="calendar-grid-mobile" id="calendar-grid"></div>
           </div>
         </div>
       </section>
 
-      <!-- 4. CALENDAR VIEW -->
+      <!-- 4. STANDALONE CALENDAR VIEW (後方互換用) -->
       <section id="view-calendar" class="view-panel">
         <div class="mobile-calendar-container">
           <div class="calendar-month-bar">
-            <button class="icon-btn-sm" id="cal-prev-btn">&lt;</button>
-            <h2 id="cal-month-year-label"></h2>
-            <button class="icon-btn-sm" id="cal-next-btn">&gt;</button>
-            <button class="btn-today-sm" id="cal-today-btn">今月</button>
+            <button class="icon-btn-sm" id="cal-prev-btn-alt">&lt;</button>
+            <h2 id="cal-month-year-label-alt"></h2>
+            <button class="icon-btn-sm" id="cal-next-btn-alt">&gt;</button>
+            <button class="btn-today-sm" id="cal-today-btn-alt">今月</button>
           </div>
 
-          <div class="calendar-grid-mobile" id="calendar-grid"></div>
+          <div class="calendar-grid-mobile" id="calendar-grid-alt"></div>
         </div>
       </section>
 
-      <!-- 5. MATRIX VIEW (ご指定配置: 右上＝緊急かつ重要, 右下＝緊急だが重要ではない, 左上＝重要だが緊急ではない, 左下＝緊急でも重要でもない) -->
+      <!-- 5. MATRIX VIEW -->
       <section id="view-matrix" class="view-panel">
         <div class="visual-matrix-wrapper">
           <div class="matrix-graphic-board">
-            <!-- 上軸: 重要 -->
             <div class="axis-label axis-top">重要</div>
 
             <div class="matrix-quadrant-grid">
-              <!-- 左上: 重要だが緊急ではない (Q2 黄) -->
               <div class="v-quadrant q2-yellow" data-quadrant="Q2">
                 <div class="v-quad-header">
                   <span class="v-quad-title">重要だが緊急でない</span>
@@ -249,7 +278,6 @@
                 <div class="v-quad-task-container" id="list-q2"></div>
               </div>
 
-              <!-- 右上: 重要かつ緊急 (Q1 赤) -->
               <div class="v-quadrant q1-red" data-quadrant="Q1">
                 <div class="v-quad-header">
                   <span class="v-quad-title">重要かつ緊急</span>
@@ -258,7 +286,6 @@
                 <div class="v-quad-task-container" id="list-q1"></div>
               </div>
 
-              <!-- 左下: 緊急でも重要でもない (Q4 灰) -->
               <div class="v-quadrant q4-gray" data-quadrant="Q4">
                 <div class="v-quad-header">
                   <span class="v-quad-title">緊急でも重要でもない</span>
@@ -267,7 +294,6 @@
                 <div class="v-quad-task-container" id="list-q4"></div>
               </div>
 
-              <!-- 右下: 緊急だが重要ではない (Q3 青) -->
               <div class="v-quadrant q3-cyan" data-quadrant="Q3">
                 <div class="v-quad-header">
                   <span class="v-quad-title">緊急だが重要ではない</span>
@@ -277,9 +303,7 @@
               </div>
             </div>
 
-            <!-- 下軸: 重要ではない -->
             <div class="axis-label axis-bottom">重要ではない</div>
-            <!-- 左軸: 緊急ではない, 右軸: 緊急 -->
             <div class="axis-label axis-left vertical-text">緊急ではない</div>
             <div class="axis-label axis-right vertical-text">緊急</div>
           </div>
