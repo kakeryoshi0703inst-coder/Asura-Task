@@ -292,8 +292,8 @@ html, body {
   flex: 1;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  /* アプリ化時のボトムナビ & FAB との被りを防ぐ十分な下部パディング */
-  padding: 18px 16px calc(var(--bottom-nav-height) + var(--sab) + 72px) 16px;
+  /* アプリ化時のボトムナビと同列の追加ボタンに対応した下部パディング */
+  padding: 18px 16px calc(var(--bottom-nav-height) + var(--sab) + 24px) 16px;
   position: relative;
 }
 
@@ -1037,6 +1037,7 @@ html, body {
   font-size: 10px;
   font-weight: 500;
   width: 56px;
+  cursor: pointer;
 }
 
 .nav-tab.active {
@@ -1044,34 +1045,33 @@ html, body {
   font-weight: 700;
 }
 
-/* FAB中央スペース確保 */
-.fab-placeholder { width: 56px; }
-
-/* スマホアプリ化（スタンドアロン起動）時にも被らない高い視認性のFABボタン */
+/* 他のコマンド欄（ナビタブ）と同列に配置した中央タスク追加ボタン */
 .mobile-fab {
-  position: fixed;
-  bottom: calc(var(--bottom-nav-height) + var(--sab) - 18px);
-  left: 50%;
-  transform: translateX(-50%);
-  width: 56px;
-  height: 56px;
+  position: relative;
+  width: 44px;
+  height: 44px;
   border-radius: var(--radius-full);
   background-color: var(--text-primary);
   color: var(--bg-app);
-  border: 3px solid var(--bg-header);
+  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.8), 0 0 12px rgba(255,255,255,0.2);
-  z-index: 70;
-  transition: transform 0.15s ease, background-color 0.15s;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  z-index: 55;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform 0.15s ease, opacity 0.15s ease;
 }
 
-.mobile-fab:active { transform: translateX(-50%) scale(0.92); }
+.mobile-fab:active {
+  transform: scale(0.92);
+  opacity: 0.9;
+}
 
 .mobile-fab .icon {
-  width: 26px;
-  height: 26px;
+  width: 24px;
+  height: 24px;
   stroke-width: 3;
 }
 

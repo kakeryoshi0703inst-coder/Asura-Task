@@ -374,7 +374,9 @@
         <span>Tasks</span>
       </button>
       
-      <div class="fab-placeholder"></div>
+      <button class="mobile-fab" id="fab-add-task" aria-label="タスクを追加">
+        <svg class="icon"><use href="#icon-plus"/></svg>
+      </button>
 
       <button class="nav-tab" data-view="timeline">
         <svg class="icon"><use href="#icon-clock"/></svg>
@@ -385,11 +387,6 @@
         <span>Matrix</span>
       </button>
     </nav>
-
-    <!-- FLOATING CENTER QUICK ADD BUTTON (FAB) -->
-    <button class="mobile-fab" id="fab-add-task" aria-label="タスクを追加">
-      <svg class="icon"><use href="#icon-plus"/></svg>
-    </button>
 
     <!-- MOBILE NATIVE BOTTOM SHEET -->
     <div class="bottom-sheet-overlay hidden" id="task-modal">
