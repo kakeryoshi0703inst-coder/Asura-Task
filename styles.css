@@ -430,13 +430,16 @@ html, body {
   border: 1px solid #3f3f46;
   color: #fafafa;
   width: 28px;
-  height: 22px;
+  height: 24px;
   border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   padding: 0;
+  margin: 0;
+  line-height: 0;
+  box-sizing: border-box;
   transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
@@ -448,11 +451,11 @@ html, body {
 }
 
 .btn-reorder .icon {
-  width: 14px;
-  height: 14px;
-  stroke: currentColor;
-  stroke-width: 2.5;
+  width: 16px;
+  height: 16px;
   display: block;
+  margin: auto;
+  pointer-events: none;
 }
 
 .task-checkbox {

@@ -568,7 +568,7 @@
     btnUp.className = 'btn-reorder btn-reorder-up';
     btnUp.setAttribute('aria-label', '上へ移動');
     btnUp.setAttribute('title', '上へ移動');
-    btnUp.innerHTML = '<svg class="icon"><use href="#icon-chevron-up"/></svg>';
+    btnUp.innerHTML = '<svg class="icon"><use href="#icon-chevrons-up"/></svg>';
     btnUp.addEventListener('click', (e) => {
       e.stopPropagation();
       moveTaskOrder(task.id, -1);
@@ -579,7 +579,7 @@
     btnDown.className = 'btn-reorder btn-reorder-down';
     btnDown.setAttribute('aria-label', '下へ移動');
     btnDown.setAttribute('title', '下へ移動');
-    btnDown.innerHTML = '<svg class="icon"><use href="#icon-chevron-down"/></svg>';
+    btnDown.innerHTML = '<svg class="icon"><use href="#icon-chevrons-down"/></svg>';
     btnDown.addEventListener('click', (e) => {
       e.stopPropagation();
       moveTaskOrder(task.id, 1);
