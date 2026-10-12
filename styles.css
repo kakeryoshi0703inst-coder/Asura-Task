@@ -293,8 +293,7 @@ html, body {
   flex: 1;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  /* ボトムナビゲーションバーの高さとセーフエリアにフィット */
-  padding: 16px 16px calc(var(--bottom-nav-height) + var(--sab) + 12px) 16px;
+  padding: 16px;
   position: relative;
 }
 
@@ -1024,19 +1023,18 @@ html, body {
   stroke-width: 3;
 }
 
-/* --------------------------------------------------------------------------
-   9. FIXED NATIVE MOBILE BOTTOM NAVIGATION & FAB (NO OVERLAP OPTIMIZED)
-   -------------------------------------------------------------------------- */
 .mobile-bottom-nav {
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  height: calc(var(--bottom-nav-height) + var(--sab));
+  width: 100%;
+  height: var(--bottom-nav-height);
+  min-height: var(--bottom-nav-height);
   background-color: var(--bg-header);
   border-top: 1px solid var(--border-subtle);
   display: flex;
   align-items: center;
   justify-content: space-around;
-  padding-bottom: var(--sab);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 0px);
+  flex-shrink: 0;
   z-index: 50;
 }
 
