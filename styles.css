@@ -414,35 +414,45 @@ html, body {
   border: 1px dashed var(--color-accent);
 }
 
+/* 並び替え上下矢印コントロールのUI改善 */
 .task-reorder-controls {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
   flex-shrink: 0;
-  margin-top: 2px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
 }
 
 .btn-reorder {
-  background: var(--bg-input);
-  border: 1px solid var(--border-subtle);
-  color: var(--text-secondary);
-  width: 26px;
+  background-color: #27272a;
+  border: 1px solid #3f3f46;
+  color: #fafafa;
+  width: 28px;
   height: 22px;
-  border-radius: var(--radius-sm);
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  padding: 0;
+  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .btn-reorder:active {
-  background-color: var(--border-medium);
-  color: var(--text-primary);
+  background-color: #3f3f46;
+  border-color: #52525b;
+  transform: scale(0.92);
 }
 
 .btn-reorder .icon {
   width: 14px;
   height: 14px;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  display: block;
 }
 
 .task-checkbox {

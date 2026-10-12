@@ -564,18 +564,22 @@
     reorderControls.className = 'task-reorder-controls';
 
     const btnUp = document.createElement('button');
+    btnUp.type = 'button';
     btnUp.className = 'btn-reorder btn-reorder-up';
     btnUp.setAttribute('aria-label', '上へ移動');
-    btnUp.innerHTML = '<svg class="icon"><use href="#icon-arrow-up"/></svg>';
+    btnUp.setAttribute('title', '上へ移動');
+    btnUp.innerHTML = '<svg class="icon"><use href="#icon-chevron-up"/></svg>';
     btnUp.addEventListener('click', (e) => {
       e.stopPropagation();
       moveTaskOrder(task.id, -1);
     });
 
     const btnDown = document.createElement('button');
+    btnDown.type = 'button';
     btnDown.className = 'btn-reorder btn-reorder-down';
     btnDown.setAttribute('aria-label', '下へ移動');
-    btnDown.innerHTML = '<svg class="icon"><use href="#icon-arrow-down"/></svg>';
+    btnDown.setAttribute('title', '下へ移動');
+    btnDown.innerHTML = '<svg class="icon"><use href="#icon-chevron-down"/></svg>';
     btnDown.addEventListener('click', (e) => {
       e.stopPropagation();
       moveTaskOrder(task.id, 1);
