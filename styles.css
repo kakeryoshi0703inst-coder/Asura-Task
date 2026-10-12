@@ -122,10 +122,12 @@ html, body {
   color: var(--bg-app);
   font-weight: 800;
   font-size: 14px;
+  line-height: 1;
   border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
+  padding-top: 1px;
 }
 
 .mobile-page-title {
@@ -1025,15 +1027,14 @@ html, body {
 
 .mobile-bottom-nav {
   width: 100%;
-  height: var(--bottom-nav-height);
-  min-height: var(--bottom-nav-height);
+  height: 52px;
+  min-height: 52px;
   background-color: var(--bg-header);
   border-top: 1px solid var(--border-subtle);
   display: flex;
   align-items: center;
   justify-content: space-around;
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-  padding-bottom: max(env(safe-area-inset-bottom, 0px), 0px);
+  padding-bottom: 2px;
   flex-shrink: 0;
   z-index: 50;
 }
