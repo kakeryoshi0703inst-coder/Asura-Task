@@ -3,7 +3,7 @@
  * Enables complete offline startup and caching
  */
 
-const CACHE_NAME = 'auratask-offline-v5';
+const CACHE_NAME = 'auratask-offline-v6';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',

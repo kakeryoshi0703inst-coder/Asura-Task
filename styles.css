@@ -6,8 +6,8 @@
 
 :root {
   /* Safe Area for iOS Notch/Status Bar & Home Bar (App Mode Safe Margins) */
-  --sat: env(safe-area-inset-top, 28px);
-  --sab: env(safe-area-inset-bottom, 16px);
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
 
   /* Mobile OLED Dark Color Palette */
   --bg-app: #09090b;
@@ -34,7 +34,7 @@
 
   /* Ergonomic Dimensions */
   --header-base-height: 56px;
-  --bottom-nav-height: 64px;
+  --bottom-nav-height: 58px;
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 18px;
@@ -52,12 +52,11 @@
 html, body {
   width: 100%;
   height: 100%;
-  height: 100dvh;
+  min-height: -webkit-fill-available;
   background-color: var(--bg-app);
   color: var(--text-primary);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   overflow: hidden;
-  position: fixed;
   user-select: none;
 }
 
@@ -79,7 +78,9 @@ html, body {
   display: flex;
   flex-direction: column;
   width: 100%;
+  height: 100%;
   height: 100dvh;
+  min-height: -webkit-fill-available;
   position: relative;
   overflow: hidden;
   background-color: var(--bg-app);
@@ -89,8 +90,8 @@ html, body {
    1. MOBILE TOP HEADER (NOTCH SAFE AREA)
    -------------------------------------------------------------------------- */
 .mobile-header {
-  padding-top: max(var(--sat), 24px);
-  height: calc(var(--header-base-height) + max(var(--sat), 24px));
+  padding-top: var(--sat);
+  height: calc(var(--header-base-height) + var(--sat));
   background-color: var(--bg-header);
   border-bottom: 1px solid var(--border-subtle);
   display: flex;
@@ -292,8 +293,8 @@ html, body {
   flex: 1;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  /* アプリ化時のボトムナビと同列の追加ボタンに対応した下部パディング */
-  padding: 18px 16px calc(var(--bottom-nav-height) + var(--sab) + 24px) 16px;
+  /* ボトムナビゲーションバーの高さとセーフエリアにフィット */
+  padding: 16px 16px calc(var(--bottom-nav-height) + var(--sab) + 12px) 16px;
   position: relative;
 }
 
