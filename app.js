@@ -17,7 +17,20 @@
   ];
 
   function getTodayDateString() {
-    return new Date().toISOString().split('T')[0];
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  function getOffsetDateString(daysOffset = 0) {
+    const d = new Date();
+    d.setDate(d.getDate() + daysOffset);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   function formatDateJapanese(dateStr) {
@@ -249,6 +262,7 @@
     elements.taskTitleInput = document.getElementById('task-title-input');
     elements.taskDueDate = document.getElementById('task-due-date');
     elements.taskDueDateEnd = document.getElementById('task-due-date-end');
+    elements.quickDateBtns = document.querySelectorAll('.quick-date-btn');
     elements.taskStartTime = document.getElementById('task-start-time');
     elements.taskEndTime = document.getElementById('task-end-time');
     elements.taskMatrixSelect = document.getElementById('task-matrix-select');
@@ -404,6 +418,35 @@
     elements.closeTaskModal.addEventListener('click', closeTaskModalFunc);
     elements.cancelTaskBtn.addEventListener('click', closeTaskModalFunc);
     elements.taskForm.addEventListener('submit', handleTaskFormSubmit);
+
+    // Quick Date Chips (最新日付とのワンタップ紐づけ)
+    elements.quickDateBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        elements.quickDateBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const mode = btn.dataset.date;
+        if (mode === 'today') {
+          elements.taskDueDate.value = getTodayDateString();
+          elements.taskDueDateEnd.value = '';
+        } else if (mode === 'tomorrow') {
+          elements.taskDueDate.value = getOffsetDateString(1);
+          elements.taskDueDateEnd.value = '';
+        } else if (mode === 'weekend') {
+          const now = new Date();
+          const day = now.getDay();
+          const daysUntilSaturday = (6 - day + 7) % 7 || 7;
+          elements.taskDueDate.value = getOffsetDateString(daysUntilSaturday);
+          elements.taskDueDateEnd.value = '';
+        } else if (mode === 'none') {
+          elements.taskDueDate.value = '';
+          elements.taskDueDateEnd.value = '';
+        }
+      });
+    });
+
+    elements.taskDueDate.addEventListener('change', () => {
+      updateQuickDateChipsState();
+    });
 
     // Subtask Builder
     elements.btnAddSubtaskItem.addEventListener('click', addTempSubtask);
@@ -1084,11 +1127,13 @@
       }
     } else {
       elements.taskForm.reset();
+      // 最新の当日日付を自動設定
       elements.taskDueDate.value = getTodayDateString();
       elements.taskDueDateEnd.value = '';
       elements.taskMatrixSelect.value = 'Q2';
     }
 
+    updateQuickDateChipsState();
     renderSubtaskBuilderList();
 
     elements.taskModal.classList.remove('hidden');
@@ -1104,6 +1149,31 @@
         elements.taskForm.scrollTop = 0;
       }
       elements.taskTitleInput.focus();
+    });
+  }
+
+  function updateQuickDateChipsState() {
+    const val = elements.taskDueDate.value;
+    const today = getTodayDateString();
+    const tomorrow = getOffsetDateString(1);
+    const now = new Date();
+    const day = now.getDay();
+    const daysUntilSaturday = (6 - day + 7) % 7 || 7;
+    const weekend = getOffsetDateString(daysUntilSaturday);
+
+    elements.quickDateBtns.forEach(btn => {
+      const mode = btn.dataset.date;
+      if (mode === 'today' && val === today) {
+        btn.classList.add('active');
+      } else if (mode === 'tomorrow' && val === tomorrow) {
+        btn.classList.add('active');
+      } else if (mode === 'weekend' && val === weekend) {
+        btn.classList.add('active');
+      } else if (mode === 'none' && !val) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
     });
   }
 

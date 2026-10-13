@@ -1207,6 +1207,37 @@ html, body {
   outline: none;
 }
 
+.quick-date-chips {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  margin-bottom: 2px;
+}
+
+.quick-date-btn {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.quick-date-btn:active {
+  background-color: var(--border-medium);
+}
+
+.quick-date-btn.active {
+  background-color: var(--text-primary);
+  color: var(--bg-app);
+  border-color: var(--text-primary);
+  font-weight: 700;
+}
+
 .date-range-group {
   display: flex;
   align-items: center;
