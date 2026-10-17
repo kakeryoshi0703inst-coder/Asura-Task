@@ -808,8 +808,14 @@
       elements.focusCompleteBtn.style.display = 'none';
     }
 
+    const matrixOrder = { Q1: 1, Q2: 2, Q3: 3, Q4: 4 };
+    const sortByMatrix = (a, b) => (matrixOrder[a.matrix] || 4) - (matrixOrder[b.matrix] || 4);
+
     const todayDoTasks = allFiltered.filter(t => !t.completed && (t.dueDate === todayStr || (t.dueDate <= todayStr && t.dueDateEnd >= todayStr)));
+    todayDoTasks.sort(sortByMatrix);
+
     const todayLaterTasks = allFiltered.filter(t => !t.completed && t.dueDate !== todayStr && t.id !== (focusTask ? focusTask.id : null));
+    todayLaterTasks.sort(sortByMatrix);
 
     elements.listTodayDo.innerHTML = '';
     todayDoTasks.forEach(task => elements.listTodayDo.appendChild(createTaskDOMElement(task)));
@@ -1237,7 +1243,7 @@
         id: 'task-' + Date.now(),
         title: title,
         completed: false,
-        dueDate: elements.taskDueDate.value || getTodayDateString(),
+        dueDate: elements.taskDueDate.value || '',
         dueDateEnd: elements.taskDueDateEnd.value || '',
         startTime: elements.taskStartTime.value || '',
         endTime: elements.taskEndTime.value || '',
